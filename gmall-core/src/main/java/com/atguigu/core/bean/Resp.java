@@ -7,7 +7,7 @@ import lombok.Data;
 /*响应结果集*/
 @ApiModel
 @Data
-public class Resp<T> {/*方便前端，.code就可以直接得到响应状态码。。。更加统一*/
+public class Resp<T> {/*方便前端，.code就可以直接得到响应状态码。。。更加统一(高复用响应对象)*/
 
     @ApiModelProperty(name = "code",value = "响应状态码")
     private Integer code;

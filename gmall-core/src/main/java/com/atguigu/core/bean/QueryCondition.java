@@ -10,7 +10,7 @@ import lombok.Data;
 public class QueryCondition {
 
 
-    @ApiModelProperty(name = "page",value = "页码",required = false)
+    @ApiModelProperty(name = "page",value = "页码",required = false)//设置非必须参数
     private Long page;
 
     @ApiModelProperty(name = "limit",value = "每页大小",required = false)

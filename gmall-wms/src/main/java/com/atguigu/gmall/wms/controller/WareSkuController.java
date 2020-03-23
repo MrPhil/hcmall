@@ -1,12 +1,14 @@
 package com.atguigu.gmall.wms.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
 import com.atguigu.core.bean.PageVo;
 import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,16 @@ import com.atguigu.gmall.wms.service.WareSkuService;
 @RequestMapping("wms/waresku")
 public class WareSkuController {
     @Autowired
-    private WareSkuService wareSkuService;
+    private WareSkuService wareSkuService;//用于crud
+
+    @ApiOperation("商品库存-sku维护的库存维护（sku仓库）")
+    @GetMapping("{skuId}")
+    @PreAuthorize("hasAuthority('wms:waresku')")
+    public Resp<List<WareSkuEntity>> queryWareSkusBySkuId(@PathVariable("skuId")Long skuId){
+        List<WareSkuEntity> wareSkuEntities = wareSkuService.list(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId));//用list方法按照()里的条件查询并返回list
+
+        return Resp.ok(wareSkuEntities);
+    }
 
     /**
      * 列表

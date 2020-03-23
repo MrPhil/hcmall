@@ -18,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Mark sunlightcs@gmail.com
  */
+
+//作用，在别处new一个这个对象，可以把QueryCondition对象转变成IPage对象
 public class Query<T> {
 
 

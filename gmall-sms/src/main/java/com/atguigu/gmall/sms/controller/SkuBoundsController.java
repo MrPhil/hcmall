@@ -7,6 +7,7 @@ import java.util.Map;
 import com.atguigu.core.bean.PageVo;
 import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
+import com.atguigu.gmall.sms.vo.SkuSaleVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,16 @@ import com.atguigu.gmall.sms.service.SkuBoundsService;
 public class SkuBoundsController {
     @Autowired
     private SkuBoundsService skuBoundsService;
+
+    @ApiOperation("接收pms的sku销售信息")
+    @PostMapping("/sku/sale/save")
+/*    @PreAuthorize("hasAuthority('sms:skubounds:sku:sale:save')")*/
+    //不需要响应数据所以object
+    public Resp<Object> saveSale(@RequestBody SkuSaleVO skuSaleVO){
+        skuBoundsService.saveSale(skuSaleVO);
+
+        return Resp.ok(null);
+    }
 
     /**
      * 列表

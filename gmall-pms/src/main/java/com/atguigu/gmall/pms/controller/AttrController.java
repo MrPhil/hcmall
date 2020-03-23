@@ -7,6 +7,7 @@ import java.util.Map;
 import com.atguigu.core.bean.PageVo;
 import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
+import com.atguigu.gmall.pms.vo.AttrVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,19 @@ import com.atguigu.gmall.pms.service.AttrService;
 @RequestMapping("pms/attr")
 public class AttrController {
     @Autowired
-    private AttrService attrService;
+    private AttrService attrService;//用于crud。attrService.xx
+
+    @ApiOperation("销售属性&基本属性查询")
+    @GetMapping
+    @PreAuthorize("hasAuthority('pms:attr')")
+    public Resp<PageVo> queryAttrByCid(QueryCondition condition,
+                                       @RequestParam("cid")Long cid,
+                                       @RequestParam(value = "type", defaultValue = "1")Integer type){
+
+        PageVo page = attrService.queryAttrByCid(condition, cid, type);
+
+        return Resp.ok(page);
+    }
 
     /**
      * 列表
@@ -64,8 +77,9 @@ public class AttrController {
     @ApiOperation("保存")
     @PostMapping("/save")
     @PreAuthorize("hasAuthority('pms:attr:save')")
-    public Resp<Object> save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
+    public Resp<Object> save(@RequestBody AttrVO attrVO){
+
+        this.attrService.saveAttr(attrVO);
 
         return Resp.ok(null);
     }

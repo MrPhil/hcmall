@@ -35,7 +35,10 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+
+    @ApiOperation("树状三级分类")
     @GetMapping
+    @PreAuthorize("hasAuthority('pms:category')")
     public Resp<List<CategoryEntity>> queryCategoriesByPidOrLevel(@RequestParam(value = "level", defaultValue = "0")Integer level,
                                                                   @RequestParam(value = "parentCid", required = false) Long pid){
         QueryWrapper<CategoryEntity> wrapper = new QueryWrapper<>();

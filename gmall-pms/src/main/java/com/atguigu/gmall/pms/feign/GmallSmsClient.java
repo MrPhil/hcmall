@@ -16,5 +16,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface GmallSmsClient extends GmallSmsApi {
 
  /*   @PostMapping("/sku/sale/save")
-    public Resp<Object> saveSale(@RequestBody SkuSaleVO skuSaleVO);*/
+    public Resp<Object> saveSale(@RequestBody SkuSaleVO skuSaleVO);//放在接口工程，并依赖接口工程后继承那个接口*/
 }

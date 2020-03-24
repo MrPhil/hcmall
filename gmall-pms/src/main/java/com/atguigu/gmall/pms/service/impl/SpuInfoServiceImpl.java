@@ -4,13 +4,12 @@ import com.atguigu.gmall.pms.dao.SkuInfoDao;
 import com.atguigu.gmall.pms.dao.SpuInfoDescDao;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.feign.GmallSmsClient;
-import com.atguigu.gmall.pms.service.ProductAttrValueService;
-import com.atguigu.gmall.pms.service.SkuImagesService;
-import com.atguigu.gmall.pms.service.SkuSaleAttrValueService;
+import com.atguigu.gmall.pms.service.*;
 import com.atguigu.gmall.pms.vo.BaseAttrVO;
 import com.atguigu.gmall.pms.vo.SkuInfoVO;
 import com.atguigu.gmall.pms.vo.SpuInfoVO;
 import com.atguigu.gmall.sms.vo.SkuSaleVO;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,8 @@ import com.atguigu.core.bean.Query;
 import com.atguigu.core.bean.QueryCondition;
 
 import com.atguigu.gmall.pms.dao.SpuInfoDao;
-import com.atguigu.gmall.pms.service.SpuInfoService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 
@@ -53,6 +53,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private GmallSmsClient gmallSmsClient;
+
+    @Autowired
+    private SpuInfoDescService spuInfoDescService;//通过接口注入进来调用保存方法
 
     @Override
     public PageVo queryPage(QueryCondition params) {
@@ -94,37 +97,23 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     //保存顺序不能颠倒
+    @GlobalTransactional
     public void bigSave(SpuInfoVO spuInfoVO) {
         //1.保存spu相关的3张表，1.1先保存（先存id）
         //1.1. 保存pms_spu_info
-        spuInfoVO.setCreateTime(new Date());
-        spuInfoVO.setUodateTime(spuInfoVO.getCreateTime());
-        this.save(spuInfoVO);
-        Long spuId = spuInfoVO.getId();
+        Long spuId = saveSpuInfo(spuInfoVO);
 
         //1.2. 保存pms_spu_info_desc
-        List<String> spuImages = spuInfoVO.getSpuImages();//获取基本属性
-        if(!CollectionUtils.isEmpty(spuImages)){
-            SpuInfoDescEntity descEntity = new SpuInfoDescEntity();
-            descEntity.setSpuId(spuId);
-            descEntity.setDecript(StringUtils.join(spuImages, ","));//把传过来的集合(图片链接地址)转化为string
-            this.descDao.insert(descEntity);//写入数据库
-        }
+        this.spuInfoDescService.saveSpuInfoDesc(spuInfoVO, spuId);
 
         //1.3. 保存pms_spu_attr_value
-        List<BaseAttrVO> baseAttrs = spuInfoVO.getBaseAttrs();//获取基本属性
-        if (!CollectionUtils.isEmpty(baseAttrs)) {
-            //类型转为ProductAttrValueEntity才能放入attrValueService的saveBatch
-            List<ProductAttrValueEntity> attrValueEntities = baseAttrs.stream().map(baseAttrVO -> {
-                ProductAttrValueEntity attrValueEntity = baseAttrVO;
-                attrValueEntity.setSpuId(spuId);//前端不传spuid，自己设置
-                return attrValueEntity;
-            }).collect(Collectors.toList());
-            this.attrValueService.saveBatch(attrValueEntities);//写入数据库，批量保存
-        }
-
+        saveBaseAttrValue(spuInfoVO, spuId);
 
         //保存skus
+        saveSkuAndSale(spuInfoVO, spuId);
+    }
+
+    public void saveSkuAndSale(SpuInfoVO spuInfoVO, Long spuId) {
         List<SkuInfoVO> skus = spuInfoVO.getSkus();//对别的表操作，先获取前端传过来的skus的信息
         if(CollectionUtils.isEmpty(skus)){
             return ;
@@ -175,6 +164,26 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             skuSaleVO.setSkuId(skuId);//SaleVo比InfoVO多一个属性
             this.gmallSmsClient.saveSale(skuSaleVO);
         });
+    }
+
+    public void saveBaseAttrValue(SpuInfoVO spuInfoVO, Long spuId) {
+        List<BaseAttrVO> baseAttrs = spuInfoVO.getBaseAttrs();//获取基本属性
+        if (!CollectionUtils.isEmpty(baseAttrs)) {
+            //类型转为ProductAttrValueEntity才能放入attrValueService的saveBatch
+            List<ProductAttrValueEntity> attrValueEntities = baseAttrs.stream().map(baseAttrVO -> {
+                ProductAttrValueEntity attrValueEntity = baseAttrVO;
+                attrValueEntity.setSpuId(spuId);//前端不传spuid，自己设置
+                return attrValueEntity;
+            }).collect(Collectors.toList());
+            this.attrValueService.saveBatch(attrValueEntities);//写入数据库，批量保存
+        }
+    }
+
+    public Long saveSpuInfo(SpuInfoVO spuInfoVO) {
+        spuInfoVO.setCreateTime(new Date());
+        spuInfoVO.setUodateTime(spuInfoVO.getCreateTime());
+        this.save(spuInfoVO);
+        return spuInfoVO.getId();
     }
 
 }

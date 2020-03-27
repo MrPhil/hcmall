@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -9,6 +10,7 @@ import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.catalina.LifecycleState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,15 @@ import com.atguigu.gmall.pms.service.ProductAttrValueService;
 public class ProductAttrValueController {
     @Autowired
     private ProductAttrValueService productAttrValueService;
+
+    @ApiOperation("检索属性pms-interface接口方法")
+    //Goods需要的是SearchAttr集合，这里先用ProductAttrValueEntity集合之后再转化就行了
+    @GetMapping("{spuId}")
+    public Resp<List<ProductAttrValueEntity>> querySearchValueBySpuId(@PathVariable("spuId")Long spuId){
+
+        List<ProductAttrValueEntity> searchAttrValue = this.productAttrValueService.querySearchAttrValueBySpuId(spuId);
+        return Resp.ok(searchAttrValue);
+    }
 
     /**
      * 列表

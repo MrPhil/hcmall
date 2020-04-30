@@ -55,6 +55,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private GmallSmsClient gmallSmsClient;
 
     @Autowired
+    //抽取的方法放在了spu描述服务类中，这样不同service走不同的事务了。所以得注入描述信息的service
     private SpuInfoDescService spuInfoDescService;//通过接口注入进来调用保存方法
 
     @Override
@@ -101,15 +102,86 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public void bigSave(SpuInfoVO spuInfoVO) {
         //1.保存spu相关的3张表，1.1先保存（先存id）
         //1.1. 保存pms_spu_info
+        //spuInfoVO.setCreateTime(new Date());
+        //spuInfoVO.setUodateTime(spuInfoVO.getCreateTime());
+        //this.save(spuInfoVO);
+        //Long spuId = spuInfoVO.getId();
         Long spuId = saveSpuInfo(spuInfoVO);
 
         //1.2. 保存pms_spu_info_desc
-        this.spuInfoDescService.saveSpuInfoDesc(spuInfoVO, spuId);
+        //List<String> spuImages = spuInfoVO.getSpuImages();//获取基本属性
+        //if(!CollectionUtils.isEmpty(spuImages)){
+        //    SpuInfoDescEntity descEntity = new SpuInfoDescEntity();
+        //    descEntity.setSpuId(spuId);
+        //    descEntity.setDecript(StringUtils.join(spuImages, ","));//把传过来的集合(图片链接地址)转化为string
+        //    this.descDao.insert(descEntity);//写入数据库
+        //}
+        this.spuInfoDescService.saveSpuInfoDesc(spuInfoVO, spuId);//抽取的方法放在了spu描述服务类中，这样不同service走不同的事务了。所以得注入描述信息的service
 
         //1.3. 保存pms_spu_attr_value
+        //List<BaseAttrVO> baseAttrs = spuInfoVO.getBaseAttrs();//获取基本属性
+        //if (!CollectionUtils.isEmpty(baseAttrs)) {
+        //    //类型转为ProductAttrValueEntity才能放入attrValueService的saveBatch
+        //    List<ProductAttrValueEntity> attrValueEntities = baseAttrs.stream().map(baseAttrVO -> {
+        //        ProductAttrValueEntity attrValueEntity = baseAttrVO;
+        //        attrValueEntity.setSpuId(spuId);//前端不传spuid，自己设置
+        //        return attrValueEntity;
+        //    }).collect(Collectors.toList());
+        //    this.attrValueService.saveBatch(attrValueEntities);//写入数据库，批量保存
+        //}
         saveBaseAttrValue(spuInfoVO, spuId);
 
         //保存skus
+        //List<SkuInfoVO> skus = spuInfoVO.getSkus();//对别的表操作，先获取前端传过来的skus的信息
+        //if(CollectionUtils.isEmpty(skus)){
+        //    return ;
+        //}
+        //skus.forEach(skuInfoVO -> {//skus多个集合，遍历保存
+        //    //2.保存sku相关的3张表，2.1先保存
+        //    //2.1. 保存pms_sku_info
+        //    skuInfoVO.setSpuId(spuId);
+        //    skuInfoVO.setSkuCode(UUID.randomUUID().toString());//设置唯一标识字段
+        //    skuInfoVO.setBrandId(spuInfoVO.getBrandId());
+        //    skuInfoVO.setCatalogId(spuInfoVO.getCatalogId());
+        //    List<String> images = skuInfoVO.getImages();
+        //    //设置默认图片
+        //    if(!CollectionUtils.isEmpty(images)){
+        //        //如果默认图片没有就用images的第一张
+        //        skuInfoVO.setSkuDefaultImg(StringUtils.isNoneBlank(skuInfoVO.getSkuDefaultImg()) ? skuInfoVO.getSkuDefaultImg() : images.get(0));
+        //    }
+        //    this.skuInfoDao.insert(skuInfoVO);
+        //    Long skuId = skuInfoVO.getSkuId();
+
+        //    //2.2. 保存pms_sku_images   //images是集合，可以批量保存。131行
+        //    if(!CollectionUtils.isEmpty(images)){
+        //        List<SkuImagesEntity> skuImagesEntities = images.stream().map(image -> {
+        //            SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+        //            skuImagesEntity.setImgUrl(image);
+        //            skuImagesEntity.setSkuId(skuId);
+        //            //设置是否默认图片
+        //            skuImagesEntity.setDefaultImg(StringUtils.equals(skuInfoVO.getSkuDefaultImg(), image) ? 1 : 0);//如果默认图片与当前图片地址一样就是1，反之0
+        //            return skuImagesEntity;
+        //        }).collect(Collectors.toList());//对象集合转化完毕
+        //        this.skuImagesService.saveBatch(skuImagesEntities);
+        //    }
+
+        //    //2.3. 保存pms_sku_attr_value
+        //    List<SkuSaleAttrValueEntity> saleAttrs = skuInfoVO.getSaleAttrs();
+        //    if(!CollectionUtils.isEmpty(saleAttrs)){
+        //        //设置skuId
+        //        saleAttrs.forEach(skuSaleAttrValueEntity -> skuSaleAttrValueEntity.setSkuId(skuId));
+        //        //批量保存
+        //        this.SaleAttrValueService.saveBatch(saleAttrs);
+        //    }
+
+        //    //3.保存sms营销信息的3张表，平级关系,依赖于2.
+        //    //3.1. 保存sms_sku_bounds;3.2. 保存sms_sku_ladders;3.3. 保存sms_sku_full_reduction
+        //    //通过feign远程调用sms来实现保存
+        //    SkuSaleVO skuSaleVO = new SkuSaleVO();
+        //    BeanUtils.copyProperties(skuInfoVO, skuSaleVO);
+        //    skuSaleVO.setSkuId(skuId);//SaleVo比InfoVO多一个属性
+        //    this.gmallSmsClient.saveSale(skuSaleVO);
+        //});
         saveSkuAndSale(spuInfoVO, spuId);
     }
 

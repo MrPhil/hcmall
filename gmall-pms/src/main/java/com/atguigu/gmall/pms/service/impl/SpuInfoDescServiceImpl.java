@@ -35,6 +35,7 @@ public class SpuInfoDescServiceImpl extends ServiceImpl<SpuInfoDescDao, SpuInfoD
     }
 
     @Transactional
+    //使用事务，spring基于AOP基于JDK代理基于接口，故接口要有这个方法
     public void saveSpuInfoDesc(SpuInfoVO spuInfoVO, Long spuId) {
         List<String> spuImages = spuInfoVO.getSpuImages();//获取基本属性
         if(!CollectionUtils.isEmpty(spuImages)){

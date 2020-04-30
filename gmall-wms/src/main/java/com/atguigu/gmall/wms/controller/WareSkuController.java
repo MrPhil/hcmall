@@ -37,7 +37,6 @@ public class WareSkuController {
 
     @ApiOperation("商品库存-sku维护的库存维护（sku仓库）")
     @GetMapping("{skuId}")
-    @PreAuthorize("hasAuthority('wms:waresku')")
     public Resp<List<WareSkuEntity>> queryWareSkusBySkuId(@PathVariable("skuId")Long skuId){
         List<WareSkuEntity> wareSkuEntities = wareSkuService.list(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId));//用list方法按照()里的条件查询并返回list
 

@@ -19,6 +19,8 @@ import java.util.List;
 public interface AttrGroupService extends IService<AttrGroupEntity> {
 
     PageVo queryPage(QueryCondition params);
+
+
     PageVo queryGroupByPage(QueryCondition condition, Long catId);
 
     GroupVO queryGroupWithAttrsByGid(Long gid);

@@ -53,7 +53,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             wrapper.eq("catelog_id", catId);
         }
         IPage<AttrGroupEntity> page = this.page(//调用的serviceimpl的selectpage方法
-                new Query<AttrGroupEntity>().getPage(condition),//转化成Ipage对象
+                new Query<AttrGroupEntity>().getPage(condition),//转化成IPage对象,zhe ge page() fang fa zhi neng chu li IPage
                 wrapper
         );
 

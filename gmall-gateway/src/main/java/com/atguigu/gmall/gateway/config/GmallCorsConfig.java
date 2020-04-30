@@ -21,7 +21,7 @@ public class GmallCorsConfig {
 
         //2.sors跨域配置对象
         CorsConfiguration configuration = new CorsConfiguration();//new一个cors配置
-        //3.响应头里面告诉浏览器那些域名访问我，是否允许携带cookie，允许哪些方法,允许哪些头信息的。都要在上面new的配置类进行配置
+        //3.响应头里面告诉浏览器那些域名访问我，是否允许携带cookie，允许哪些方法,允许哪些头信息的。都要在上面new的配置类进行配置.dont write "*" in (),or cookie cant use
         configuration.addAllowedOrigin("http://localhost:1000");//允许这个域名跨域访问（nodejs生成的前端工程）
         configuration.setAllowCredentials(true);//是否允许携带cookie
         configuration.addAllowedMethod("*");//允许所有的方法跨域

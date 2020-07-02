@@ -15,7 +15,7 @@
         <mybatisplus.version>3.0.7.1</mybatisplus.version>
         <nacos.version>0.2.2.RELEASE</nacos.version>
         <mybatisplus.version>3.2.0</mybatisplus.version>
-        <mysql.version>5.1.46</mysql.version>
+        <mysql.version>8.0.16</mysql.version>
         <swagger.version>2.9.2</swagger.version>
     </properties>
     <!--两个最基础的依赖，注册与配置，别的微服务都依赖这个微服务也就都有这些依赖了-->
